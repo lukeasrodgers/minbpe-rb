@@ -23,6 +23,15 @@ class TestMinbpeRb < Minitest::Test
     end
   end
 
+
+  def test_taylor_swift_encode_decode_identity
+    s = File.read("test/fixtures/taylorswift.txt")
+    basic_tokenizer = BasicTokenizer.new
+    encoded = basic_tokenizer.encode(s)
+    decoded = basic_tokenizer.decode(encoded)
+    assert s == decoded
+  end
+
   def test_wikipedia_example
     basic_tokenizer = BasicTokenizer.new
     text = "aaabdaaabac"
