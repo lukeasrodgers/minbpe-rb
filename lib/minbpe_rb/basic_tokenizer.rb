@@ -1,4 +1,9 @@
 class BasicTokenizer < Tokenizer
+  def initialize
+    super
+    @pattern = ""
+  end
+
   def decode(ids)
     ids.map{@vocab[_1]}.join("").force_encoding("utf-8")
   end
