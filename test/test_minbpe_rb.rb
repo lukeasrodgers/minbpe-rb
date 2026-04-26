@@ -94,5 +94,19 @@ class TestBasicTokenizer < Minitest::Test
     regex_tokenizer.register_special_tokens(special_tokens)
 
     assert regex_tokenizer.decode(regex_tokenizer.encode(text, allowed_special: "all")) == text
+
+    ids = regex_tokenizer.encode(text, allowed_special: "all")
+
+    # TODO implement save/load
+    regex_tokenizer.save("test_tokenizer_tmp")
+    regex_tokenizer = RegexTokenizer.new
+    regex_tokenizer.load("test_tokenizer_tmp.model")
+    assert regex_tokenizer.decode(ids) == text
+    assert regex_tokenizer.decode(regex_tokenizer.encode(text, allowed_special: "all")) == text
+    assert regex_tokenizer.encode(text, allowed_special: "all") == ids
+    ["test_tokenizer_tmp.model", "test_tokenizer_tmp.vocab"].each do |path|
+      FileUtils.rm(path)
+    end
+
   end
 end

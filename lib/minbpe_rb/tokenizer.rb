@@ -1,4 +1,8 @@
 class Tokenizer
+  # https://stackoverflow.com/questions/56204309/how-to-remove-control-characters-in-ruby
+  # Karpathy cribbed from SO so I guess I can too
+  CONTROL_CHARS_REGEXP = /\e\[[^\x40-\x7E]*[\x40-\x7E]/
+
   def initialize(pattern: nil)
     # TODO maybe Hash.new(Float::INFINITY) ? or maybe only for encode lookup fallback if nil
     @merges = {}
@@ -19,13 +23,62 @@ class Tokenizer
   end
 
   def save(file_prefix)
-    # TODO
-    raise NotImplementedError
+    model_file = file_prefix + ".model"
+    File.open(model_file, "w") do |f|
+      f.write("minbpe v1\n")
+      f.write("#{@pattern}\n")
+      f.write("#{@special_tokens.size}\n")
+      @special_tokens.each { |k, v| f.write("#{k} #{v}\n")}
+      @merges.keys.each { |k, v| f.write("#{k} #{v}\n")}
+    end
+
+    vocab_file = file_prefix + ".vocab"
+    inverted_merges = @merges.invert
+    File.open(vocab_file, "w") do |f|
+      @vocab.each do |idx, token|
+        s = render_token(token)
+        if inverted_merges.key?(idx)
+          idx0, idx1 = inverted_merges[idx]
+          s0 = render_token(@vocab[idx0])
+          s1 = render_token(@vocab[idx1])
+          f.write("[#{s0}][#{s1}] -> [#{s}] #{idx}\n")
+        else
+          f.write("[#{s}] #{idx}\n")
+        end
+      end
+    end
   end
 
-  def load(file_prefix)
-    # TODO
-    raise NotImplementedError
+  def load(model_file)
+    raise "Model file should end with '.model'" unless model_file.end_with?(".model")
+
+    merges = {}
+    special_tokens = {}
+    idx = 256
+
+    File.open(model_file) do |f|
+      version = f.readline.strip
+      raise "unexpected version: #{version}" unless version == "minbpe v1"
+
+      # TODO need to compile pattern
+      @pattern = Regexp.new(f.readline.strip)
+      num_special = f.readline.strip.to_i
+
+      num_special.times do 
+        special, special_idx = f.readline.strip.split
+        special_tokens[special] = special_idx.to_i
+      end
+
+      f.readlines.each do |line|
+        idx1, idx2 = line.split.map(&:to_i)
+        key = [idx1, idx2]
+        merges[key] = idx
+        idx += 1
+      end
+    end
+    @merges = merges
+    @special_tokens = special_tokens
+    @vocab = build_vocab
   end
 
   private
@@ -71,5 +124,15 @@ class Tokenizer
       end
     end
     new_ids
+  end
+
+  def render_token(t)
+    s = t.scrub
+    replace_control_chars(s)
+  end
+
+  def replace_control_chars(s)
+    # obviously not compatible with python minbpe, don't care
+    s.gsub(CONTROL_CHARS_REGEXP, "WAT")
   end
 end
