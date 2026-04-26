@@ -10,3 +10,8 @@ Rake::TestTask.new(:test) do |t|
 end
 
 task default: :test
+
+desc "Run benchmarks (optional: VOCAB_SIZE=256)"
+task :bench do
+  exec "bundle exec ruby bench/benchmark.rb #{ENV["VOCAB_SIZE"]}"
+end
