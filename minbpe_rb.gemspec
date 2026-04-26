@@ -6,11 +6,10 @@ Gem::Specification.new do |spec|
   spec.name = "minbpe_rb"
   spec.version = MinbpeRb::VERSION
   spec.authors = ["Luke Rodgers"]
-  spec.email = ["lukeasrodgers@gmail.com"]
 
   spec.summary = "Minimal Byte Pair Encoding implementation in Ruby based on Karpathy's minbpe"
   spec.description = "Minimal Byte Pair Encoding implementation in Ruby based on Karpathy's minbpe"
-  spec.homepage = "https://github.com/yourusername/minbpe-rb"
+  spec.homepage = "https://github.com/lukeasrodgers/minbpe-rb"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0"
 
