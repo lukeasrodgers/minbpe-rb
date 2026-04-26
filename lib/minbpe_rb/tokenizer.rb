@@ -1,8 +1,7 @@
 class Tokenizer
-  def initialize
+  def initialize(pattern: nil)
     # TODO maybe Hash.new(Float::INFINITY) ? or maybe only for encode lookup fallback if nil
     @merges = {}
-    @pattern = ""
     @special_tokens = {}
     @vocab = build_vocab
   end
@@ -44,6 +43,7 @@ class Tokenizer
     @vocab = vocab
   end
 
+  # TODO could rename, since it actually mutates stats, doesn't just "get" them
   # Given a list of integers, return a dictionary of counts of consecutive pairs
   # Example: [1, 2, 3, 1, 2] -> {(1, 2): 2, (2, 3): 1, (3, 1): 1}
   # Optionally allows to update an existing dictionary of counts

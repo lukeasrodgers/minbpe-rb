@@ -24,6 +24,7 @@ class BasicTokenizer < Tokenizer
     ids = text.bytes
 
     merges = {}
+    # TODO refactor, this pattern appears in several places
     a = (0..255).to_a
     vocab = a.zip(a.map {[_1].pack("C*")}).to_h
     num_merges.times do |i|
